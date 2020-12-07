@@ -1,6 +1,3 @@
-# DanceDance_Game
-간단한 리듬? 따라하기? 게임입니다.
+영단어 타이핑 연습 프로젝트입니다.
 
-blog : https://blockdmask.tistory.com/401
-
-youtube : https://youtu.be/phWAGzaTdCA
+기반 source code:https://github.com/BlockDMask/DanceDance_Game/
