@@ -7,19 +7,12 @@
 #pragma comment(lib, "winmm.lib")
 using namespace std;
 
-//By. BlockDMask.
-//[PART1] make screen, change screen, input.
-//[PART2] input&output, question, life.
-//[PART3] setting level, play music, play time
-
-//#include <stdio.h>
 #include <curses.h>
-//#define gotoxy(x,y) wmove(stdscr,y-1,x-1)
 
 #define MAGIC_KEY1 27
 #define MAGIC_KEY2 91
-#define SPACE 32
-#define KEY_NUM 4
+#define SPACE 10
+#define KEY_NUM 52
 #define LIFE 3
 #define MAX_LEVEL 11
 
@@ -43,14 +36,6 @@ enum KEYBOARD
 	DOWN = 66
 };
 
-//Cursor move
-/*void gotoxy(int x, int y)
-{
-	COORD Pos;
-	Pos.X = 2 * x;
-	Pos.Y = y;
-	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), Pos);
-}*/
 void SetConsoleView()
 {
 	//	system("mode con:cols=50 lines=20");
@@ -117,23 +102,15 @@ void SetQuestion(vector<int>& questionVec, int level)
 
 	int num = 0;
 	srand((unsigned int)time(NULL));
-	for (int i = 0; i < level; ++i)	//화살표의 개수 (문제 난이도)
+	for (int i = 0; i < level; ++i)	//alphabet의 개수 (문제 난이도)
 	{
-		num = rand() % KEY_NUM;	//화살표 종류.
-		switch (num)
-		{
-		case 0:
-			questionVec.push_back(UP);
-			break;
-		case 1:
-			questionVec.push_back(RIGHT);
-			break;
-		case 2:
-			questionVec.push_back(LEFT);
-			break;
-		case 3:
-			questionVec.push_back(DOWN);
-			break;
+		num = rand() % KEY_NUM;	//alphabet 종류.
+		
+		if(num<26) {
+			questionVec.push_back(num+65);
+		}
+		else {
+			questionVec.push_back(num+71);
 		}
 	}
 }
@@ -142,21 +119,9 @@ void VectorToString(const vector<int> v, string& str)
 {
 	for (int i = 0; i < static_cast<int>(v.size()); ++i)
 	{
-		switch (v[i])
-		{
-		case UP:
-			str += "↑ ";
-			break;
-		case DOWN:
-			str += "↓ ";
-			break;
-		case LEFT:
-			str += "← ";
-			break;
-		case RIGHT:
-			str += "→ ";
-			break;
-		}
+
+		str += v[i];
+		str += " ";
 	}
 }
 
@@ -231,51 +196,37 @@ void StartGame()
 			}
 
 			//정답 하나씩 입력.
-			firstInput = _getch();
-			if (firstInput == MAGIC_KEY1)
-			{
-				secondInput = _getch();
-				secondInput = _getch();
-				answerVec.push_back(secondInput);
-				switch (secondInput)
-				{
-				case UP:
-					answerStr += "↑ ";
-					break;
-				case DOWN:
-					answerStr += "↓ ";
-					break;
-				case LEFT:
-					answerStr += "← ";
-					break;
-				case RIGHT:
-					answerStr += "→ ";
+			
+			while(true) {
+				firstInput = _getch();
+				if (firstInput == MAGIC_KEY1) {
+					firstInput = _getch();
+					firstInput = _getch();
+				}
+				else {
 					break;
 				}
 			}
-			else if (firstInput == SPACE)
-			{
-				//답안 제출
-				//답안 확인
-				if (CheckAnswer(questionVec, answerVec))
-				{
+			if (((firstInput>64)&&(firstInput<91))||((firstInput>96)&&(firstInput<123))) {
+				answerVec.push_back(firstInput);
+				answerStr += firstInput;
+				answerStr += " ";
+			}
+			else if (firstInput == SPACE) {
+				if (CheckAnswer(questionVec, answerVec)) {
 					score += 10;
 				}
-				else
-				{
-					//틀렸다.
+				else {
 					--life;
 					score -= 5;
-					if (score < 0)
-					{
+					if (score < 0) {
 						score = 0;
 					}
 				}
-
 				questionVec.clear();
 				questionStr = "";
-				answerVec.clear();
-				answerStr = "";
+                answerVec.clear();
+                answerStr = "";
 				break;
 			}
 		}
@@ -284,7 +235,6 @@ void StartGame()
 
 int main(void)
 {
-	SetConsoleView();
 	while (true)
 	{
 		switch (ReadyGame())
