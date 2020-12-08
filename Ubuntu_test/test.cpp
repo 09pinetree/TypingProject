@@ -6,7 +6,7 @@
 #pragma comment(lib, "winmm.lib")
 using namespace std;
 
-//리듬게임 By. BlockDMask.
+//By. BlockDMask.
 //[PART1] make screen, change screen, input.
 //[PART2] input&output, question, life.
 //[PART3] setting level, play music, play time
@@ -71,7 +71,7 @@ void DrawReadyGame()
 	gotoxy(5, 2);
 	cout << "******************************";
 	gotoxy(5, 3);
-	cout << "*        Dance Dance         *";
+	cout << "*        Dance Dance!        *";
 	gotoxy(5, 4);
 	cout << "******************************";
 	gotoxy(10, 8);
@@ -96,7 +96,7 @@ void DrawInfoGame()
 	gotoxy(1, 9);
 	cout << "*******************************************";
 	gotoxy(1, 10);
-	cout << "|Music - https://www.youtube.com/HYPMUSIC";
+	cout << "press SPACE! to return to main menu" <<endl;
 }
 
 void DrawStartGame(const int life, const int score, const string questionStr, const string answerStr)
@@ -118,9 +118,11 @@ void DrawStartGame(const int life, const int score, const string questionStr, co
 	cout << "*******************************************" << endl;
 }
 
-//게임 오버 그리기
 void DrawGameOver(const int playTime)
 {
+	system("clear");
+	gotoxy(2, 1);
+	cout << "*******************************************";
 	gotoxy(8, 8);
 	cout << "-------------------";
 	gotoxy(8, 9);
@@ -129,10 +131,12 @@ void DrawGameOver(const int playTime)
 	cout << " " << playTime << " sec";
 	gotoxy(8, 11);
 	cout << "-------------------";
-	system("pause>null");
+	gotoxy(4, 12);
+	cout << "press SPACE! to return to main menu";
+	gotoxy(2, 18);
+	cout << "*******************************************" <<endl;
 }
 
-//커서 움직이는것 출력
 void DrawUserCursor(int& y)
 {
 	if (y <= 0)
@@ -189,8 +193,13 @@ MENU ReadyGame()
 
 void InfoGame()
 {
+	int input = 0;
 	DrawInfoGame();
-	system("pause>null");
+	while (true)
+	{
+		input = _getch();
+		if (input == SPACE) return;
+	}
 }
 
 void SetQuestion(vector<int>& questionVec, int level)
@@ -305,6 +314,13 @@ void StartGame()
 				int playTime = static_cast<int>((endTime - startTime) / CLOCKS_PER_SEC);
 
 				DrawGameOver(playTime);
+				int input = 0;
+				while (true)
+				{
+					input = _getch();
+					if (input == SPACE) return;
+				}
+
 				return;
 			}
 
@@ -379,3 +395,4 @@ int main(void)
 	}
 	return 0;
 }
+
