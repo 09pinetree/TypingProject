@@ -12,7 +12,6 @@ using namespace std;
 //[PART3] setting level, play music, play time
 
 #include <curses.h>
-//#define gotoxy(x,y) wmove(stdscr,y-1,x-1)
 
 #define MAGIC_KEY1 27
 #define MAGIC_KEY2 91
