@@ -27,6 +27,14 @@ enum MENU
 	INFO,
 	QUIT
 };
+enum GAMEMENU
+{
+	ALPHABET = 0,
+	WORD,
+	SENTENCE,
+	WRONGANSWER,
+	BACK
+};
 
 enum KEYBOARD
 {
@@ -81,6 +89,43 @@ MENU ReadyGame()
 		}
 	}
 }
+
+GAMEMENU GameSet(){
+	int y=0;
+	int input = 0;
+	while(true){
+		draw.DrawGameSet();
+		draw.DrawGamesetCursor(y);
+		input=_getch();
+		if(input == MAGIC_KEY1){
+			input = _getch();
+			switch(_getch()){
+				case UP:
+					--y;
+					break;
+				case DOWN:
+					++y;
+					break;
+			}
+		}
+		else if(input == SPACE){
+			switch(y){
+				case 0:
+					return ALPHABET;
+				case 1:
+					return WORD;
+				case 2:
+					return SENTENCE;
+				case 3:
+					return WRONGANSWER;
+				case 4:
+					return BACK;
+			}
+
+		}
+	}
+}
+
 
 void InfoGame()
 {
@@ -240,7 +285,22 @@ int main(void)
 		switch (ReadyGame())
 		{
 		case GAMESTART:
-			StartGame();
+			switch(GameSet()){
+				case ALPHABET:
+					StartGame();
+					break;
+				case WORD:
+					StartGame();
+					break;
+				case SENTENCE:
+					StartGame();
+					break;
+				case WRONGANSWER:
+					StartGame();
+					break;
+				case BACK:
+					break;
+			}
 			break;
 		case INFO:
 			InfoGame();

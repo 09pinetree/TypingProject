@@ -12,17 +12,37 @@ class Draw{
 	void DrawReadyGame(){
 		system("clear");
 		gotoxy(5, 2);
-		cout << "******************************";
+		cout << "*************************************";
 		gotoxy(5, 3);
-		cout << "*        Dance Dance!        *";
+		cout << "*        English Typing Test        *";
 		gotoxy(5, 4);
-		cout << "******************************";
+		cout << "*************************************";
 		gotoxy(10, 8);
 		cout << "GameStart";
 		gotoxy(10, 9);
 		cout << "GameInfo";
 		gotoxy(10, 10);
 		cout << "Quit" << endl;
+	}
+	void DrawGameSet(){
+		system("clear");
+		gotoxy(5,2);
+		cout << "*************************************";
+		gotoxy(5,3);
+		cout << "*           Select Game             *";
+		gotoxy(5,4);
+		cout << "*************************************";
+		gotoxy(10,8);
+		cout << "Alphabet Game";
+		gotoxy(10,9);
+		cout << "Word Game";
+		gotoxy(10,10);
+		cout << "Sentence Game";
+		gotoxy(10,11);
+		cout << "Check Wrong Answers";
+		gotoxy(10,12);
+		cout << "Back";
+
 	}
 	void DrawInfoGame()
 	{
@@ -93,6 +113,16 @@ class Draw{
 			gotoxy(9, 8 + y);
 			cout << ">";
 		}
+	void DrawGamesetCursor(int& y){
+		if(y<=0){
+			y=0;
+		}
+		else if( y>=4){
+			y=4;
+		}
+		gotoxy(9,8+y);
+		cout<< ">";
+	}
 };
 
 
