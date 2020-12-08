@@ -17,7 +17,7 @@ using namespace std;
 
 #define MAGIC_KEY1 27
 #define MAGIC_KEY2 91
-#define SPACE 32
+#define SPACE 10
 #define KEY_NUM 4
 #define LIFE 3
 #define MAX_LEVEL 11
