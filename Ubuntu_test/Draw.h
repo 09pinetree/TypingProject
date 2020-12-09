@@ -58,7 +58,7 @@ class Draw{
 		gotoxy(1, 9);
 		cout << "*******************************************";
 		gotoxy(1, 10);
-		cout << "press SPACE! to return to main menu" <<endl;
+		cout << "press ENTER! to return to main menu" <<endl;
 	}
 
 	void DrawStartGame(const int life, const int score, const string questionStr, const string answerStr)
@@ -75,12 +75,12 @@ class Draw{
 			gotoxy(4, 10);
 			cout << "A : " << answerStr;
 			gotoxy(4, 12);
-			cout << "press SPACE! after input done.";
+			cout << "press ENTER! after input done.";
 			gotoxy(2, 18);
 			cout << "*******************************************" << endl;
 		}
 
-	void DrawGameOver(const int playTime)
+	void DrawGameOver()
 		{
 			system("clear");
 			gotoxy(2, 1);
@@ -90,11 +90,9 @@ class Draw{
 			gotoxy(8, 9);
 			cout << "| G A M E O V E R |";
 			gotoxy(8, 10);
-			cout << " " << playTime << " sec";
-			gotoxy(8, 11);
 			cout << "-------------------";
 			gotoxy(4, 12);
-			cout << "press SPACE! to return to main menu";
+			cout << "press ENTER! to return to main menu";
 			gotoxy(2, 18);
 			cout << "*******************************************" <<endl;
 		}

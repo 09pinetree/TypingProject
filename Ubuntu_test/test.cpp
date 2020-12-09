@@ -4,6 +4,7 @@
 #include<string>
 #include<ctime>
 #include "Draw.h"
+#include "letterSpawn.h"
 #pragma comment(lib, "winmm.lib")
 using namespace std;
 
@@ -11,10 +12,12 @@ using namespace std;
 
 #define MAGIC_KEY1 27
 #define MAGIC_KEY2 91
-#define SPACE 10
+#define ENTER 10
 #define KEY_NUM 52
 #define LIFE 3
 #define MAX_LEVEL 11
+#define BACKSPACE 127
+#define SPACE 32
 
 typedef struct _COORD {
     short X;
@@ -54,12 +57,12 @@ Draw draw;
 //-----------Func-----------------
 MENU ReadyGame()
 {
-	int y = 0;
+	int cursor=0;
 	int input = 0;
 	while (true)
 	{
 		draw.DrawReadyGame();
-		draw.DrawUserCursor(y);
+		draw.DrawUserCursor(cursor);
 		input = _getch();
 		//→←↑↓
 		if (input == MAGIC_KEY1)
@@ -68,16 +71,16 @@ MENU ReadyGame()
 			switch (_getch())
 			{
 			case UP:
-				--y;
+				--cursor;
 				break;
 			case DOWN:
-				++y;
+				++cursor;
 				break;
 			}
 		}
-		else if (input == SPACE)
+		else if (input == ENTER)
 		{
-			switch (y)
+			switch (cursor)
 			{
 			case 0:
 				return GAMESTART;
@@ -89,34 +92,38 @@ MENU ReadyGame()
 		}
 	}
 }
-
+int gameFlag=0;
 GAMEMENU GameSet(){
-	int y=0;
+	int cursor=0;
 	int input = 0;
 	while(true){
 		draw.DrawGameSet();
-		draw.DrawGamesetCursor(y);
+		draw.DrawGamesetCursor(cursor);
 		input=_getch();
 		if(input == MAGIC_KEY1){
 			input = _getch();
 			switch(_getch()){
 				case UP:
-					--y;
+					--cursor;
 					break;
 				case DOWN:
-					++y;
+					++cursor;
 					break;
 			}
 		}
-		else if(input == SPACE){
-			switch(y){
+		else if(input == ENTER){
+			switch(cursor){
 				case 0:
+					gameFlag=ALPHABET;
 					return ALPHABET;
 				case 1:
+					gameFlag=WORD;
 					return WORD;
 				case 2:
+					gameFlag=SENTENCE;
 					return SENTENCE;
 				case 3:
+					gameFlag=WRONGANSWER;
 					return WRONGANSWER;
 				case 4:
 					return BACK;
@@ -134,11 +141,32 @@ void InfoGame()
 	while (true)
 	{
 		input = _getch();
-		if (input == SPACE) return;
+		if (input == ENTER) return;
 	}
 }
 
 void SetQuestion(vector<int>& questionVec, int level)
+{
+	if (level > MAX_LEVEL)
+	{
+		level = MAX_LEVEL;
+	}
+
+	int num = 0;
+	
+	for (int i = 0; i < level; ++i)	//alphabet의 개수 (문제 난이도)
+	{
+		num = rand() % KEY_NUM;	//alphabet 종류.
+		
+		if(num<26) {
+			questionVec.push_back(num+65);
+		}
+		else {
+			questionVec.push_back(num+71);
+		}
+	}
+}
+void SetQuestion(vector<int>& questionVec, int level,int wordFlag)
 {
 	if (level > MAX_LEVEL)
 	{
@@ -160,30 +188,32 @@ void SetQuestion(vector<int>& questionVec, int level)
 	}
 }
 
+
 void VectorToString(const vector<int> v, string& str)
 {
+	str ="";
 	for (int i = 0; i < static_cast<int>(v.size()); ++i)
 	{
 
 		str += v[i];
-		str += " ";
+		str += "";
 	}
 }
 
-bool CheckAnswer(const vector<int> questionVec, const vector<int> answerVec)
+bool CheckAnswer(string questionStr, string answerStr)
 {
 	//숫자의 배열이 같다.
 	//길이 체크
-	if (questionVec.size() != answerVec.size())
+	if (questionStr.size() != answerStr.size())
 	{
 		//길이 다르네
 		return false;
 	}
 
 	//내용물 체크
-	for (int i = 0; i < static_cast<int>(questionVec.size()); ++i)
+	for (int i = 0; i < static_cast<int>(questionStr.size()); ++i)
 	{
-		if (questionVec[i] != answerVec[i])
+		if (questionStr[i] != answerStr[i])
 		{
 			//다른게 있네.
 			return false;
@@ -192,15 +222,12 @@ bool CheckAnswer(const vector<int> questionVec, const vector<int> answerVec)
 	return true;
 }
 
+
 void StartGame()
 {
 	int life = LIFE;
 	int score = 0;
-	//재생했을때 현재시간.
-	clock_t startTime, endTime;
-	startTime = clock();
 
-	//→←↑↓, d a w s
 	//문제
 	vector<int> questionVec;
 	string questionStr = "";
@@ -214,10 +241,24 @@ void StartGame()
 	{
 		int level = (score / 30) + 1;
 
-		//문제를 세팅
-		SetQuestion(questionVec, level);
-		//문제를 보여주기.
-		VectorToString(questionVec, questionStr);
+		switch(gameFlag){
+			case ALPHABET:
+				SetQuestion(questionVec, level);
+				VectorToString(questionVec, questionStr);
+			break;
+			case WORD:
+				questionStr =  randletter();
+				break;
+			case SENTENCE:
+				questionStr = randletter();
+				break;
+			case WRONGANSWER:
+				questionStr = randletter();
+				break;
+			default:
+				SetQuestion(questionVec, level);
+				VectorToString(questionVec, questionStr);
+		}
 		while (true)
 		{
 			//1문제를 가지고 문제를 푼다.
@@ -225,16 +266,13 @@ void StartGame()
 
 			if (life == 0)
 			{
-				//게임 오버일때 현재시간
-				endTime = clock();
-				int playTime = static_cast<int>((endTime - startTime) / CLOCKS_PER_SEC);
-
-				draw.DrawGameOver(playTime);
+				
+				draw.DrawGameOver();
 				int input = 0;
 				while (true)
 				{
 					input = _getch();
-					if (input == SPACE) return;
+					if (input == ENTER) return;
 				}
 
 				return;
@@ -252,13 +290,18 @@ void StartGame()
 					break;
 				}
 			}
-			if (((firstInput>64)&&(firstInput<91))||((firstInput>96)&&(firstInput<123))) {
+			if (((firstInput>64)&&(firstInput<91))||((firstInput>96)&&(firstInput<123))||(firstInput==SPACE)) {
 				answerVec.push_back(firstInput);
 				answerStr += firstInput;
-				answerStr += " ";
+				answerStr += "";
 			}
-			else if (firstInput == SPACE) {
-				if (CheckAnswer(questionVec, answerVec)) {
+			else if(firstInput == BACKSPACE){
+				answerVec.pop_back();
+				VectorToString(answerVec,answerStr);
+				
+			}
+			else if (firstInput == ENTER) {
+				if (questionStr==answerStr) {
 					score += 10;
 				}
 				else {
@@ -270,8 +313,8 @@ void StartGame()
 				}
 				questionVec.clear();
 				questionStr = "";
-                answerVec.clear();
-                answerStr = "";
+        answerVec.clear();
+        answerStr = "";
 				break;
 			}
 		}
