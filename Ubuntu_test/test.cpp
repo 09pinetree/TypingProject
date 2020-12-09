@@ -290,7 +290,7 @@ void StartGame()
 					break;
 				}
 			}
-			if (((firstInput>64)&&(firstInput<91))||((firstInput>96)&&(firstInput<123))||(firstInput==SPACE)) {
+			if (((firstInput>64)&&(firstInput<91))||((firstInput>96)&&(firstInput<123))||(firstInput==SPACE)||(firstInput==46)||(firstInput==44)||(firstInput==33)||(firstInput==63)||(firstInput==39)) {
 				answerVec.push_back(firstInput);
 				answerStr += firstInput;
 				answerStr += "";
