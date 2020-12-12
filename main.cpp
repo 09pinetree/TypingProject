@@ -1,163 +1,91 @@
 #include<iostream>
-#include<Windows.h>
-#include<conio.h>
+#include"getch.h"
 #include<vector>
 #include<string>
 #include<ctime>
+#include<queue>
+#include "draw.h"
+#include "wordSpawn.h"
+#include "sentenceSpawn.h"
 #pragma comment(lib, "winmm.lib")
 using namespace std;
 
-//¸®µë°ÔÀÓ By. BlockDMask.
-//[PART1] make screen, change screen, input.
-//[PART2] input&output, question, life.
-//[PART3] setting level, play music, play time
+#include <curses.h>
 
-#define MAGIC_KEY 224
-#define SPACE 32
-#define KEY_NUM 4
+#define MAGIC_KEY1 27
+#define MAGIC_KEY2 91
+#define ENTER 10
+#define KEY_NUM 52
 #define LIFE 3
 #define MAX_LEVEL 11
+#define BACKSPACE 127
+#define SPACE 32
+
+typedef struct _COORD {
+    short X;
+    short Y;
+} COORD;
+
 enum MENU
 {
 	GAMESTART = 0,
 	INFO,
 	QUIT
 };
+enum GAMEMENU
+{
+	ALPHABET = 0,
+	WORD,
+	SENTENCE,
+	WRONGANSWER,
+	BACK
+};
+enum SENTENCEMENU
+{
+	POEM_A = 22,
+	POEM_B = 45,
+	POEM_C = 49,
+	BACKTOMENU=50
+};
 
 enum KEYBOARD
 {
-	UP = 72,
-	LEFT = 75,
-	RIGHT = 77,
-	DOWN = 80
+	UP = 65,
+	LEFT = 68,
+	RIGHT = 67,
+	DOWN = 66
 };
 
-//Cursor move
-void gotoxy(int x, int y)
-{
-	COORD Pos;
-	Pos.X = 2 * x;
-	Pos.Y = y;
-	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), Pos);
-}
+queue<string> wrongAnswerNote;
 
-//title, console size
-void SetConsoleView()
-{
-	system("mode con:cols=50 lines=20");
-	system("title DanceDance");
-}
-
-//-----------Draw-----------------
-void DrawReadyGame()
-{
-	system("cls");
-	gotoxy(5, 2);
-	cout << "******************************";
-	gotoxy(5, 3);
-	cout << "*        Dance Dance         *";
-	gotoxy(5, 4);
-	cout << "******************************";
-	gotoxy(10, 8);
-	cout << "GameStart";
-	gotoxy(10, 9);
-	cout << "GameInfo";
-	gotoxy(10, 10);
-	cout << "Quit" << endl;
-}
-
-void DrawInfoGame()
-{
-	system("cls");
-	gotoxy(1, 3);
-	cout << "*******************************************";
-	gotoxy(1, 4);
-	cout << "|Developer - BlockDMask";
-	gotoxy(1, 5);
-	cout << "|Blog - https://blockdmask.tistory.com/";
-	gotoxy(1, 8);
-	cout << "|Thank you.";
-	gotoxy(1, 9);
-	cout << "*******************************************";
-	gotoxy(1, 10);
-	cout << "|Music - https://www.youtube.com/HYPMUSIC";
-}
-
-void DrawStartGame(const int life, const int score, const string questionStr, const string answerStr)
-{
-	system("cls");
-	gotoxy(2, 1);
-	cout << "*******************************************";
-	gotoxy(4, 3);
-	cout << "Life : " << life << " / " << LIFE;
-	gotoxy(4, 4);
-	cout << "Score : " << score;
-	gotoxy(4, 8);
-	cout << "Q : " << questionStr;
-	gotoxy(4, 10);
-	cout << "A : " << answerStr;
-	gotoxy(4, 12);
-	cout << "press SPACE! after input done.";
-	gotoxy(2, 18);
-	cout << "*******************************************" << endl;
-}
-
-//°ÔÀÓ ¿À¹ö ±×¸®±â
-void DrawGameOver(const int playTime)
-{
-	gotoxy(8, 8);
-	cout << "-------------------";
-	gotoxy(8, 9);
-	cout << "| G A M E O V E R |";
-	gotoxy(8, 10);
-	cout << " " << playTime << " sec";
-	gotoxy(8, 11);
-	cout << "-------------------";
-	system("pause>null");
-}
-
-//Ä¿¼­ ¿òÁ÷ÀÌ´Â°Í Ãâ·Â
-void DrawUserCursor(int& y)
-{
-	if (y <= 0)
-	{
-		y = 0;
-	}
-	else if (y >= 2)
-	{
-		y = 2;
-	}
-
-	gotoxy(9, 8 + y);
-	cout << ">";
-}
-
+Draw draw;
 //-----------Func-----------------
 MENU ReadyGame()
 {
-	int y = 0;
+	int cursor=0;
 	int input = 0;
 	while (true)
 	{
-		DrawReadyGame();
-		DrawUserCursor(y);
-		input = _getch();
-		//¡æ¡ç¡è¡é
-		if (input == MAGIC_KEY)
+		draw.DrawReadyGame();
+		draw.DrawUserCursor(cursor);
+		input = Getch();
+		//â†’â†â†‘â†“
+		if (input == MAGIC_KEY1)
 		{
-			switch (_getch())
+			input = Getch();
+			switch (Getch())
 			{
 			case UP:
-				--y;
+				--cursor;
 				break;
 			case DOWN:
-				++y;
+				++cursor;
 				break;
 			}
 		}
-		else if (input == SPACE)
+		else if (input == ENTER)
 		{
-			switch (y)
+			switch (cursor)
 			{
 			case 0:
 				return GAMESTART;
@@ -169,11 +97,94 @@ MENU ReadyGame()
 		}
 	}
 }
+int gameFlag=0;
+GAMEMENU GameSet(){
+	int cursor=0;
+	int input = 0;
+	while(true){
+		draw.DrawGameSet();
+		draw.DrawGamesetCursor(cursor);
+		input=Getch();
+		if(input == MAGIC_KEY1){
+			input = Getch();
+			switch(Getch()){
+				case UP:
+					--cursor;
+					break;
+				case DOWN:
+					++cursor;
+					break;
+			}
+		}
+		else if(input == ENTER){
+			switch(cursor){
+				case 0:
+					gameFlag=ALPHABET;
+					return ALPHABET;
+				case 1:
+					gameFlag=WORD;
+					return WORD;
+				case 2:
+					gameFlag=SENTENCE;
+					return SENTENCE;
+				case 3:
+					gameFlag=WRONGANSWER;
+					return WRONGANSWER;
+				case 4:
+					return BACK;
+			}
+
+		}
+	}
+}
+int sentenceFlag=0;
+SENTENCEMENU SentenceSet(){
+	int cursor=0;
+	int input = 0;
+	while(true){
+		draw.DrawSentenceSet();
+		draw.DrawSentencesetCursor(cursor);
+		input=Getch();
+		if(input == MAGIC_KEY1){
+			input = Getch();
+			switch(Getch()){
+				case UP:
+					--cursor;
+					break;
+				case DOWN:
+					++cursor;
+					break;
+			}
+		}
+		else if(input == ENTER){
+			switch(cursor){
+				case 0:
+					sentenceFlag=POEM_A;
+					return POEM_A;
+				case 1:
+					sentenceFlag=POEM_B;
+					return POEM_B;
+				case 2:
+					sentenceFlag=POEM_C;
+					return POEM_C;
+				case 3:
+					return BACKTOMENU;
+			}
+
+		}
+	}
+}
+
 
 void InfoGame()
 {
-	DrawInfoGame();
-	system("pause>null");
+	int input = 0;
+	draw.DrawInfoGame();
+	while (true)
+	{
+		input = Getch();
+		if (input == ENTER) return;
+	}
 }
 
 void SetQuestion(vector<int>& questionVec, int level)
@@ -184,86 +195,60 @@ void SetQuestion(vector<int>& questionVec, int level)
 	}
 
 	int num = 0;
-	srand((unsigned int)time(NULL));
-	for (int i = 0; i < level; ++i)	//È­»ìÇ¥ÀÇ °³¼ö (¹®Á¦ ³­ÀÌµµ)
+	
+	for (int i = 0; i < level; ++i)	//alphabetì˜ ê°œìˆ˜ (ë¬¸ì œ ë‚œì´ë„)
 	{
-		num = rand() % KEY_NUM;	//È­»ìÇ¥ Á¾·ù.
-		switch (num)
-		{
-		case 0:
-			questionVec.push_back(UP);
-			break;
-		case 1:
-			questionVec.push_back(RIGHT);
-			break;
-		case 2:
-			questionVec.push_back(LEFT);
-			break;
-		case 3:
-			questionVec.push_back(DOWN);
-			break;
+		num = rand() % KEY_NUM;	//alphabet ì¢…ë¥˜.
+		
+		if(num<26) {
+			questionVec.push_back(num+65);
+		}
+		else {
+			questionVec.push_back(num+71);
 		}
 	}
 }
+
+
 
 void VectorToString(const vector<int> v, string& str)
 {
+	str ="";
 	for (int i = 0; i < static_cast<int>(v.size()); ++i)
 	{
-		switch (v[i])
-		{
-		case UP:
-			str += "¡è ";
-			break;
-		case DOWN:
-			str += "¡é ";
-			break;
-		case LEFT:
-			str += "¡ç ";
-			break;
-		case RIGHT:
-			str += "¡æ ";
-			break;
-		}
+
+		str += v[i];
+		str += "";
 	}
 }
 
-bool CheckAnswer(const vector<int> questionVec, const vector<int> answerVec)
+bool CheckAnswer(string questionStr, string answerStr)
 {
-	//¼ýÀÚÀÇ ¹è¿­ÀÌ °°´Ù.
-	//±æÀÌ Ã¼Å©
-	if (questionVec.size() != answerVec.size())
+	if (questionStr.size() != answerStr.size())
 	{
-		//±æÀÌ ´Ù¸£³×
 		return false;
 	}
 
-	//³»¿ë¹° Ã¼Å©
-	for (int i = 0; i < static_cast<int>(questionVec.size()); ++i)
+	for (int i = 0; i < static_cast<int>(questionStr.size()); ++i)
 	{
-		if (questionVec[i] != answerVec[i])
+		if (questionStr[i] != answerStr[i])
 		{
-			//´Ù¸¥°Ô ÀÖ³×.
 			return false;
 		}
 	}
 	return true;
 }
 
+
 void StartGame()
 {
-	PlaySound("HYP-Hit.wav", NULL, SND_NODEFAULT | SND_ASYNC | SND_LOOP);
 	int life = LIFE;
 	int score = 0;
-	//Àç»ýÇßÀ»¶§ ÇöÀç½Ã°£.
-	clock_t startTime, endTime;
-	startTime = clock();
-
-	//¡æ¡ç¡è¡é, d a w s
-	//¹®Á¦
+	int sentenceFlow=1;
+	//ë¬¸ì œ
 	vector<int> questionVec;
 	string questionStr = "";
-	//´ä¾ÈÁö
+	//ë‹µì•ˆì§€
 	vector<int> answerVec;
 	string answerStr = "";
 
@@ -273,71 +258,114 @@ void StartGame()
 	{
 		int level = (score / 30) + 1;
 
-		//¹®Á¦¸¦ ¼¼ÆÃ
-		SetQuestion(questionVec, level);
-		//¹®Á¦¸¦ º¸¿©ÁÖ±â.
-		VectorToString(questionVec, questionStr);
+		switch(gameFlag){
+			case ALPHABET:
+				SetQuestion(questionVec, level);
+				VectorToString(questionVec, questionStr);
+			break;
+			case WORD:
+				questionStr =  RandWord();
+				break;
+			case SENTENCE:
+				if(sentenceFlag==POEM_A){
+					questionStr = PoemAList(sentenceFlow++);
+				}else if(sentenceFlag==POEM_B){
+					questionStr = PoemBList(sentenceFlow++);
+				}else if(sentenceFlag==POEM_C){
+					questionStr = PoemCList(sentenceFlow++);
+				}
+				if(questionStr== "Default"){
+					draw.DrawGameWin();
+					int input = 0;
+					while (true)
+					{
+						input = Getch();
+						if (input == ENTER) return;
+					}
+	
+					return;
+				}
+				break;
+			case WRONGANSWER:
+				if(wrongAnswerNote.empty()==true){
+					draw.DrawGameWin();
+					int input = 0;
+					while (true)
+					{
+						input = Getch();
+						if (input == ENTER) return;
+					}
+	
+					return;
+				}
+				else{
+					questionStr = wrongAnswerNote.front();
+					wrongAnswerNote.pop();
+				}
+				break;
+			default:
+				SetQuestion(questionVec, level);
+				VectorToString(questionVec, questionStr);
+		}
 		while (true)
 		{
-			//1¹®Á¦¸¦ °¡Áö°í ¹®Á¦¸¦ Ç¬´Ù.
-			DrawStartGame(life, score, questionStr, answerStr);
+			//1ë¬¸ì œë¥¼ ê°€ì§€ê³  ë¬¸ì œë¥¼ í‘¼ë‹¤.
+			draw.DrawStartGame(life, score, questionStr, answerStr);
 
 			if (life == 0)
 			{
-				//°ÔÀÓ ¿À¹öÀÏ¶§ ÇöÀç½Ã°£
-				endTime = clock();
-				int playTime = static_cast<int>((endTime - startTime) / CLOCKS_PER_SEC);
+				
+				draw.DrawGameOver();
+				int input = 0;
+				while (true)
+				{
+					input = Getch();
+					if (input == ENTER) return;
+				}
 
-				DrawGameOver(playTime);
-				PlaySound(NULL, NULL, 0);
 				return;
 			}
 
-			//Á¤´ä ÇÏ³ª¾¿ ÀÔ·Â.
-			firstInput = _getch();
-			if (firstInput == MAGIC_KEY)
-			{
-				secondInput = _getch();
-				answerVec.push_back(secondInput);
-				switch (secondInput)
-				{
-				case UP:
-					answerStr += "¡è ";
-					break;
-				case DOWN:
-					answerStr += "¡é ";
-					break;
-				case LEFT:
-					answerStr += "¡ç ";
-					break;
-				case RIGHT:
-					answerStr += "¡æ ";
+			//ì •ë‹µ í•˜ë‚˜ì”© ìž…ë ¥.
+			
+			while(true) {
+				firstInput = Getch();
+				if (firstInput == MAGIC_KEY1) {
+					firstInput = Getch();
+					firstInput = Getch();
+				}
+				else {
 					break;
 				}
 			}
-			else if (firstInput == SPACE)
-			{
-				//´ä¾È Á¦Ãâ
-				//´ä¾È È®ÀÎ
-				if (CheckAnswer(questionVec, answerVec))
-				{
+			if (((firstInput>64)&&(firstInput<91))||((firstInput>96)&&(firstInput<123))||(firstInput==SPACE)||(firstInput==46)||(firstInput==44)||(firstInput==33)||(firstInput==63)||(firstInput==39)) {
+				answerVec.push_back(firstInput);
+				answerStr += firstInput;
+				answerStr += "";
+			}
+			else if(firstInput == BACKSPACE){
+				answerVec.pop_back();
+				VectorToString(answerVec,answerStr);
+				
+			}
+			else if (firstInput == ENTER) {
+				if (questionStr==answerStr) {
 					score += 10;
 				}
-				else
-				{
-					//Æ²·È´Ù.
-					--life;
-					score -= 5;
-					if (score < 0)
-					{
-						score = 0;
+				else {
+					wrongAnswerNote.push(questionStr);
+					if(gameFlag!=WRONGANSWER){
+						--life;
+						score -= 5;
+						if (score < 0) {
+							score = 0;
+						}
 					}
 				}
-
 				questionVec.clear();
 				questionStr = "";
-				answerVec.clear();
-				answerStr = "";
+        answerVec.clear();
+        answerStr = "";
 				break;
 			}
 		}
@@ -346,13 +374,40 @@ void StartGame()
 
 int main(void)
 {
-	SetConsoleView();
+	srand((unsigned int)time(0));
 	while (true)
 	{
 		switch (ReadyGame())
 		{
 		case GAMESTART:
-			StartGame();
+			switch(GameSet()){
+				case ALPHABET:
+					StartGame();
+					break;
+				case WORD:
+					StartGame();
+					break;
+				case SENTENCE:
+					switch(SentenceSet()){
+						case POEM_A:
+							StartGame();
+							break;
+						case POEM_B:
+							StartGame();
+							break;
+						case POEM_C:
+							StartGame();
+							break;
+						case BACKTOMENU:
+							break;
+						}
+					break;
+				case WRONGANSWER:
+					StartGame();
+					break;
+				case BACK:
+					break;
+			}
 			break;
 		case INFO:
 			InfoGame();
@@ -363,3 +418,4 @@ int main(void)
 	}
 	return 0;
 }
+
