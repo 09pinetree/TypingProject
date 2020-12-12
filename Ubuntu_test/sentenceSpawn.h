@@ -132,5 +132,6 @@ string PoemCList(int a){
 		case 47: return "Panzer-man, panzer-man, O You"; break;
 		case 48: return "Not God but a swastika"; break;
 		case 49: return "So black no sky could squeak through."; break;
+		default: return "Default"; break;
 	}
 }

@@ -44,6 +44,25 @@ class Draw{
 		cout << "Back";
 
 	}
+	void DrawSentenceSet(){
+		system("clear");
+		gotoxy(5,2);
+		cout << "*************************************";
+		gotoxy(5,3);
+		cout << "*           Select Poem             *";
+		gotoxy(5,4);
+		cout << "*************************************";
+		gotoxy(10,8);
+		cout << "The Road Not Taken";
+		gotoxy(10,9);
+		cout << "Still I Rise";
+		gotoxy(10,10);
+		cout << "Daddy";
+		gotoxy(10,11);
+		cout << "Back";
+
+	}
+	
 	void DrawInfoGame()
 	{
 		system("clear");
@@ -96,7 +115,22 @@ class Draw{
 			gotoxy(2, 18);
 			cout << "*******************************************" <<endl;
 		}
-
+	void DrawGameWin(){
+			system("clear");
+			gotoxy(2, 1);
+			cout << "*******************************************";
+			gotoxy(8, 8);
+			cout << "-------------------";
+			gotoxy(8, 9);
+			cout << "| Y O U   W I N ! |";
+			gotoxy(8, 10);
+			cout << "-------------------";
+			gotoxy(4, 12);
+			cout << "press ENTER! to return to main menu";
+			gotoxy(2, 18);
+			cout << "*******************************************" <<endl;
+	
+	}
 	void DrawUserCursor(int& y)
 		{
 			if (y <= 0)
@@ -117,6 +151,16 @@ class Draw{
 		}
 		else if( y>=4){
 			y=4;
+		}
+		gotoxy(9,8+y);
+		cout<< ">";
+	}
+	void DrawSentencesetCursor(int& y){
+		if(y<=0){
+			y=0;
+		}
+		else if( y>=3){
+			y=3;
 		}
 		gotoxy(9,8+y);
 		cout<< ">";

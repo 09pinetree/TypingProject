@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <termio.h>
-int _getch(void){
+int Getch(void){
     int ch;
     struct termios buf, save;
     tcgetattr(0,&save);

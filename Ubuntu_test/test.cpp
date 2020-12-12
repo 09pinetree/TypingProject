@@ -3,8 +3,10 @@
 #include<vector>
 #include<string>
 #include<ctime>
-#include "Draw.h"
-#include "letterSpawn.h"
+#include<queue>
+#include "draw.h"
+#include "wordSpawn.h"
+#include "sentenceSpawn.h"
 #pragma comment(lib, "winmm.lib")
 using namespace std;
 
@@ -38,6 +40,13 @@ enum GAMEMENU
 	WRONGANSWER,
 	BACK
 };
+enum SENTENCEMENU
+{
+	POEM_A = 22,
+	POEM_B = 45,
+	POEM_C = 49,
+	BACKTOMENU=50
+};
 
 enum KEYBOARD
 {
@@ -47,11 +56,7 @@ enum KEYBOARD
 	DOWN = 66
 };
 
-void SetConsoleView()
-{
-	//	system("mode con:cols=50 lines=20");
-	//	system("title DanceDance");
-}
+queue<string> wrongAnswerNote;
 
 Draw draw;
 //-----------Func-----------------
@@ -63,12 +68,12 @@ MENU ReadyGame()
 	{
 		draw.DrawReadyGame();
 		draw.DrawUserCursor(cursor);
-		input = _getch();
+		input = Getch();
 		//→←↑↓
 		if (input == MAGIC_KEY1)
 		{
-			input = _getch();
-			switch (_getch())
+			input = Getch();
+			switch (Getch())
 			{
 			case UP:
 				--cursor;
@@ -99,10 +104,10 @@ GAMEMENU GameSet(){
 	while(true){
 		draw.DrawGameSet();
 		draw.DrawGamesetCursor(cursor);
-		input=_getch();
+		input=Getch();
 		if(input == MAGIC_KEY1){
-			input = _getch();
-			switch(_getch()){
+			input = Getch();
+			switch(Getch()){
 				case UP:
 					--cursor;
 					break;
@@ -132,6 +137,43 @@ GAMEMENU GameSet(){
 		}
 	}
 }
+int sentenceFlag=0;
+SENTENCEMENU SentenceSet(){
+	int cursor=0;
+	int input = 0;
+	while(true){
+		draw.DrawSentenceSet();
+		draw.DrawSentencesetCursor(cursor);
+		input=Getch();
+		if(input == MAGIC_KEY1){
+			input = Getch();
+			switch(Getch()){
+				case UP:
+					--cursor;
+					break;
+				case DOWN:
+					++cursor;
+					break;
+			}
+		}
+		else if(input == ENTER){
+			switch(cursor){
+				case 0:
+					sentenceFlag=POEM_A;
+					return POEM_A;
+				case 1:
+					sentenceFlag=POEM_B;
+					return POEM_B;
+				case 2:
+					sentenceFlag=POEM_C;
+					return POEM_C;
+				case 3:
+					return BACKTOMENU;
+			}
+
+		}
+	}
+}
 
 
 void InfoGame()
@@ -140,7 +182,7 @@ void InfoGame()
 	draw.DrawInfoGame();
 	while (true)
 	{
-		input = _getch();
+		input = Getch();
 		if (input == ENTER) return;
 	}
 }
@@ -166,27 +208,7 @@ void SetQuestion(vector<int>& questionVec, int level)
 		}
 	}
 }
-void SetQuestion(vector<int>& questionVec, int level,int wordFlag)
-{
-	if (level > MAX_LEVEL)
-	{
-		level = MAX_LEVEL;
-	}
 
-	int num = 0;
-	srand((unsigned int)time(NULL));
-	for (int i = 0; i < level; ++i)	//alphabet의 개수 (문제 난이도)
-	{
-		num = rand() % KEY_NUM;	//alphabet 종류.
-		
-		if(num<26) {
-			questionVec.push_back(num+65);
-		}
-		else {
-			questionVec.push_back(num+71);
-		}
-	}
-}
 
 
 void VectorToString(const vector<int> v, string& str)
@@ -202,20 +224,15 @@ void VectorToString(const vector<int> v, string& str)
 
 bool CheckAnswer(string questionStr, string answerStr)
 {
-	//숫자의 배열이 같다.
-	//길이 체크
 	if (questionStr.size() != answerStr.size())
 	{
-		//길이 다르네
 		return false;
 	}
 
-	//내용물 체크
 	for (int i = 0; i < static_cast<int>(questionStr.size()); ++i)
 	{
 		if (questionStr[i] != answerStr[i])
 		{
-			//다른게 있네.
 			return false;
 		}
 	}
@@ -227,7 +244,7 @@ void StartGame()
 {
 	int life = LIFE;
 	int score = 0;
-
+	int sentenceFlow=1;
 	//문제
 	vector<int> questionVec;
 	string questionStr = "";
@@ -247,13 +264,44 @@ void StartGame()
 				VectorToString(questionVec, questionStr);
 			break;
 			case WORD:
-				questionStr =  randletter();
+				questionStr =  RandWord();
 				break;
 			case SENTENCE:
-				questionStr = randletter();
+				if(sentenceFlag==POEM_A){
+					questionStr = PoemAList(sentenceFlow++);
+				}else if(sentenceFlag==POEM_B){
+					questionStr = PoemBList(sentenceFlow++);
+				}else if(sentenceFlag==POEM_C){
+					questionStr = PoemCList(sentenceFlow++);
+				}
+				if(questionStr== "Default"){
+					draw.DrawGameWin();
+					int input = 0;
+					while (true)
+					{
+						input = Getch();
+						if (input == ENTER) return;
+					}
+	
+					return;
+				}
 				break;
 			case WRONGANSWER:
-				questionStr = randletter();
+				if(wrongAnswerNote.empty()==true){
+					draw.DrawGameWin();
+					int input = 0;
+					while (true)
+					{
+						input = Getch();
+						if (input == ENTER) return;
+					}
+	
+					return;
+				}
+				else{
+					questionStr = wrongAnswerNote.front();
+					wrongAnswerNote.pop();
+				}
 				break;
 			default:
 				SetQuestion(questionVec, level);
@@ -271,7 +319,7 @@ void StartGame()
 				int input = 0;
 				while (true)
 				{
-					input = _getch();
+					input = Getch();
 					if (input == ENTER) return;
 				}
 
@@ -281,10 +329,10 @@ void StartGame()
 			//정답 하나씩 입력.
 			
 			while(true) {
-				firstInput = _getch();
+				firstInput = Getch();
 				if (firstInput == MAGIC_KEY1) {
-					firstInput = _getch();
-					firstInput = _getch();
+					firstInput = Getch();
+					firstInput = Getch();
 				}
 				else {
 					break;
@@ -305,10 +353,13 @@ void StartGame()
 					score += 10;
 				}
 				else {
-					--life;
-					score -= 5;
-					if (score < 0) {
-						score = 0;
+					wrongAnswerNote.push(questionStr);
+					if(gameFlag!=WRONGANSWER){
+						--life;
+						score -= 5;
+						if (score < 0) {
+							score = 0;
+						}
 					}
 				}
 				questionVec.clear();
@@ -336,7 +387,19 @@ int main(void)
 					StartGame();
 					break;
 				case SENTENCE:
-					StartGame();
+					switch(SentenceSet()){
+						case POEM_A:
+							StartGame();
+							break;
+						case POEM_B:
+							StartGame();
+							break;
+						case POEM_C:
+							StartGame();
+							break;
+						case BACKTOMENU:
+							break;
+						}
 					break;
 				case WRONGANSWER:
 					StartGame();
