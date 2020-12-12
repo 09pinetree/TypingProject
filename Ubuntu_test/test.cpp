@@ -374,6 +374,7 @@ void StartGame()
 
 int main(void)
 {
+	srand((unsigned int)time(0));
 	while (true)
 	{
 		switch (ReadyGame())
