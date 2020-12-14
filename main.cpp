@@ -361,15 +361,14 @@ void StartGame()
 int main(int argc, char* argv[])
 {
 	srand((unsigned int)time(0));
-	
-	if(strcmp(argv[1],"word")==0){
-		printf("%s",argv[1]);
-		gameFlag = WORD;
-		StartGame();
-		return 0;
-	}else if(argv[1]=="alphabet"){
-		gameFlag = ALPHABET;
-		StartGame();
+	if(argc>1){
+		if(strcmp(argv[1],"word")==0){
+			gameFlag = WORD;
+			StartGame();
+		}else if(strcmp(argv[1],"alphabet")==0){
+			gameFlag = ALPHABET;
+			StartGame();
+		}
 	}else{
 		while (true)
 		{
