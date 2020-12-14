@@ -12,7 +12,8 @@ using namespace std;
 
 #include <curses.h>
 
-#define MAGIC_KEY1 27
+
+#define MAGIC_KEY1 27  //방향키를 입력받기 위한 설정
 #define MAGIC_KEY2 91
 #define ENTER 10
 #define KEY_NUM 52
@@ -56,9 +57,9 @@ enum KEYBOARD
 	DOWN = 66
 };
 
-queue<string> wrongAnswerNote;
+queue<string> wrongAnswerNote; // 오답노트를 위한 queue 구조 생성
+Draw draw; // 화면 출력 객체 생성
 
-Draw draw;
 //-----------Func-----------------
 MENU ReadyGame()
 {
@@ -69,8 +70,8 @@ MENU ReadyGame()
 		draw.DrawReadyGame();
 		draw.DrawUserCursor(cursor);
 		input = Getch();
-		//→←↑↓
-		if (input == MAGIC_KEY1)
+	
+		if (input == MAGIC_KEY1) // input이 화살표라면 진입
 		{
 			input = Getch();
 			switch (Getch())
@@ -222,29 +223,12 @@ void VectorToString(const vector<int> v, string& str)
 	}
 }
 
-bool CheckAnswer(string questionStr, string answerStr)
-{
-	if (questionStr.size() != answerStr.size())
-	{
-		return false;
-	}
-
-	for (int i = 0; i < static_cast<int>(questionStr.size()); ++i)
-	{
-		if (questionStr[i] != answerStr[i])
-		{
-			return false;
-		}
-	}
-	return true;
-}
-
 
 void StartGame()
 {
 	int life = LIFE;
 	int score = 0;
-	int sentenceFlow=1;
+	int sentenceFlow=1; // 시 출력시 차례대로 출력하기 위한 제어변수
 	//문제
 	vector<int> questionVec;
 	string questionStr = "";
@@ -338,6 +322,7 @@ void StartGame()
 					break;
 				}
 			}
+			// 알파벳, 기호, 공백 등 입력 처리
 			if (((firstInput>64)&&(firstInput<91))||((firstInput>96)&&(firstInput<123))||(firstInput==SPACE)||(firstInput==46)||(firstInput==44)||(firstInput==33)||(firstInput==63)||(firstInput==39)) {
 				answerVec.push_back(firstInput);
 				answerStr += firstInput;
