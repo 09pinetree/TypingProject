@@ -69,8 +69,12 @@ class Draw{
 		gotoxy(1, 3);
 		cout << "*******************************************";
 		gotoxy(1, 4);
-		cout << "|Developer - BlockDMask";
+		cout << "Developer - Kwon Hyukjun, Lee Eutteum, Lee HyoungHo";
 		gotoxy(1, 5);
+		cout << "You can increase english typing skill with this English Practice Program";
+		gotoxy(1, 6);
+		cout << "Check Wrong Answer supports reviewing all the typos in current section";
+		gotoxy(1, 7);
 		cout << "|Blog - https://blockdmask.tistory.com/";
 		gotoxy(1, 8);
 		cout << "|Thank you.";
