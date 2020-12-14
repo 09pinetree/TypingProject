@@ -4,6 +4,7 @@
 #include<string>
 #include<ctime>
 #include<queue>
+#include<cstring>
 #include "draw.h"
 #include "wordSpawn.h"
 #include "sentenceSpawn.h"
@@ -23,8 +24,8 @@ using namespace std;
 #define SPACE 32
 
 typedef struct _COORD {
-    short X;
-    short Y;
+	short X;
+	short Y;
 } COORD;
 
 enum MENU
@@ -70,30 +71,30 @@ MENU ReadyGame()
 		draw.DrawReadyGame();
 		draw.DrawUserCursor(cursor);
 		input = Getch();
-	
+
 		if (input == MAGIC_KEY1) // input이 화살표라면 진입
 		{
 			input = Getch();
 			switch (Getch())
 			{
-			case UP:
-				--cursor;
-				break;
-			case DOWN:
-				++cursor;
-				break;
+				case UP:
+					--cursor;
+					break;
+				case DOWN:
+					++cursor;
+					break;
 			}
 		}
 		else if (input == ENTER)
 		{
 			switch (cursor)
 			{
-			case 0:
-				return GAMESTART;
-			case 1:
-				return INFO;
-			case 2:
-				return QUIT;
+				case 0:
+					return GAMESTART;
+				case 1:
+					return INFO;
+				case 2:
+					return QUIT;
 			}
 		}
 	}
@@ -196,11 +197,11 @@ void SetQuestion(vector<int>& questionVec, int level)
 	}
 
 	int num = 0;
-	
+
 	for (int i = 0; i < level; ++i)	//alphabet의 개수 (문제 난이도)
 	{
 		num = rand() % KEY_NUM;	//alphabet 종류.
-		
+
 		if(num<26) {
 			questionVec.push_back(num+65);
 		}
@@ -246,7 +247,7 @@ void StartGame()
 			case ALPHABET:
 				SetQuestion(questionVec, level);
 				VectorToString(questionVec, questionStr);
-			break;
+				break;
 			case WORD:
 				questionStr =  RandWord();
 				break;
@@ -266,7 +267,7 @@ void StartGame()
 						input = Getch();
 						if (input == ENTER) return;
 					}
-	
+
 					return;
 				}
 				break;
@@ -279,7 +280,7 @@ void StartGame()
 						input = Getch();
 						if (input == ENTER) return;
 					}
-	
+
 					return;
 				}
 				else{
@@ -298,7 +299,7 @@ void StartGame()
 
 			if (life == 0)
 			{
-				
+
 				draw.DrawGameOver();
 				int input = 0;
 				while (true)
@@ -311,7 +312,7 @@ void StartGame()
 			}
 
 			//정답 하나씩 입력.
-			
+
 			while(true) {
 				firstInput = Getch();
 				if (firstInput == MAGIC_KEY1) {
@@ -331,7 +332,7 @@ void StartGame()
 			else if(firstInput == BACKSPACE){
 				answerVec.pop_back();
 				VectorToString(answerVec,answerStr);
-				
+
 			}
 			else if (firstInput == ENTER) {
 				if (questionStr==answerStr) {
@@ -349,56 +350,67 @@ void StartGame()
 				}
 				questionVec.clear();
 				questionStr = "";
-        answerVec.clear();
-        answerStr = "";
+				answerVec.clear();
+				answerStr = "";
 				break;
 			}
 		}
 	}
 }
 
-int main(void)
+int main(int argc, char* argv[])
 {
 	srand((unsigned int)time(0));
-	while (true)
-	{
-		switch (ReadyGame())
+	
+	if(strcmp(argv[1],"word")==0){
+		printf("%s",argv[1]);
+		gameFlag = WORD;
+		StartGame();
+		return 0;
+	}else if(argv[1]=="alphabet"){
+		gameFlag = ALPHABET;
+		StartGame();
+	}else{
+		while (true)
 		{
-		case GAMESTART:
-			switch(GameSet()){
-				case ALPHABET:
-					StartGame();
-					break;
-				case WORD:
-					StartGame();
-					break;
-				case SENTENCE:
-					switch(SentenceSet()){
-						case POEM_A:
+			switch (ReadyGame())
+			{
+				case GAMESTART:
+					switch(GameSet()){
+						case ALPHABET:
 							StartGame();
 							break;
-						case POEM_B:
+						case WORD:
 							StartGame();
 							break;
-						case POEM_C:
+						case SENTENCE:
+							switch(SentenceSet()){
+								case POEM_A:
+									StartGame();
+									break;
+								case POEM_B:
+									StartGame();
+									break;
+								case POEM_C:
+									StartGame();
+									break;
+								case BACKTOMENU:
+									break;
+							}
+							break;
+						case WRONGANSWER:
 							StartGame();
 							break;
-						case BACKTOMENU:
+						case BACK:
 							break;
-						}
+					}
 					break;
-				case WRONGANSWER:
-					StartGame();
+				case INFO:
+					InfoGame();
 					break;
-				case BACK:
-					break;
+				case QUIT:
+					return 0;
 			}
-			break;
-		case INFO:
-			InfoGame();
-			break;
-		case QUIT:
-			return 0;
 		}
 	}
 	return 0;
